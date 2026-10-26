@@ -1,0 +1,13 @@
+{
+  "name": "ai-infra-knowledge-base",
+  "private": true,
+  "version": "1.0.0",
+  "description": "AI Infra documentation site: optimization workflows, articles and animated lessons",
+  "scripts": {
+    "build": "node build.cjs --no-legacy",
+    "export": "node export.cjs",
+    "check": "node check.cjs",
+    "check:release": "node check-release.cjs",
+    "check:examples": "node check-examples.cjs"
+  }
+}

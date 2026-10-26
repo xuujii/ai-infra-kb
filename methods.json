@@ -1,0 +1,1392 @@
+[
+  {
+    "id": "M001",
+    "name": "剪枝与知识蒸馏",
+    "tags": [
+      "algorithm"
+    ],
+    "stages": [
+      "I-P0"
+    ],
+    "kind": "model",
+    "benefit": "降低部署模型的规模与计算成本",
+    "mechanism": "裁减部分结构或训练更小的学生模型，将高成本的模型准备换成后续更低的推理成本。",
+    "scope": "允许转换模型或额外训练，并有明确质量基线的部署。",
+    "cost": "需评估质量、恢复训练成本和目标硬件实际速度；参数减少不等于同比提速。",
+    "sources": [
+      "pruning-modelopt",
+      "pytorch-pruning",
+      "distillation-original"
+    ],
+    "related": [
+      "M003",
+      "M004",
+      "M034",
+      "M043",
+      "M044"
+    ]
+  },
+  {
+    "id": "M002",
+    "name": "注意力结构选择：MQA / GQA / MLA",
+    "tags": [
+      "algorithm",
+      "memory"
+    ],
+    "stages": [
+      "I-P0",
+      "T-P0"
+    ],
+    "kind": "model",
+    "benefit": "减少部分 KV 存储与搬运需求",
+    "mechanism": "通过共享 KV 头或潜在表示等结构设计，改变注意力的数据表示和计算路径。",
+    "scope": "模型原生支持，或经过适配、转换与训练；不同结构使用各自内核。",
+    "cost": "不是给任意模型切换名称就能启用；比较时须同时考虑质量与形状。",
+    "sources": [
+      "mqa-paper",
+      "gqa-paper",
+      "deepseek-v2-paper",
+      "sdpa"
+    ],
+    "related": [
+      "M005",
+      "M007",
+      "M008",
+      "M016"
+    ]
+  },
+  {
+    "id": "M003",
+    "name": "稀疏计算与滑窗 Attention",
+    "tags": [
+      "algorithm",
+      "kernel"
+    ],
+    "stages": [
+      "I-P0",
+      "I-A2",
+      "T-P0",
+      "T-A1"
+    ],
+    "kind": "model",
+    "benefit": "减少实际计算或读取的元素",
+    "mechanism": "使用结构化权重稀疏，或只计算选定窗口、块或位置的注意力；需要配套执行内核。",
+    "scope": "支持相应稀疏结构的模型与硬件，或经质量验证的近似方案。",
+    "cost": "将原稠密模型改成稀疏计算可能改变结果；零权重并不会自动跳过乘法。",
+    "sources": [
+      "semi-sparse",
+      "flexattention-blog",
+      "mistral-paper"
+    ],
+    "related": [
+      "M001",
+      "M002",
+      "M006",
+      "M007",
+      "M017",
+      "M020"
+    ]
+  },
+  {
+    "id": "M004",
+    "name": "权重 / 激活量化：PTQ、QAT",
+    "tags": [
+      "algorithm",
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "I-P0",
+      "I-A2",
+      "I-A3"
+    ],
+    "kind": "model",
+    "benefit": "降低数据位数，减少访存或提高计算吞吐",
+    "mechanism": "按硬件支持选择权重 W 与激活 A 的精度、缩放和内核。PTQ 在训练后转换，QAT 在训练中适配量化影响。",
+    "scope": "支持相应格式和形状的推理后端；权重位数与计算位数可能不同。",
+    "cost": "验证质量及反量化开销；QAT 本身增加训练工作，不等于训练加速。",
+    "sources": [
+      "quant-integer",
+      "ao-inference",
+      "ao-qat",
+      "gptq",
+      "awq",
+      "smoothquant",
+      "modelopt",
+      "trt-precision",
+      "ascend-quantization"
+    ],
+    "related": [
+      "M005",
+      "M034",
+      "M035"
+    ]
+  },
+  {
+    "id": "M005",
+    "name": "KV Cache 量化与压缩",
+    "tags": [
+      "algorithm",
+      "memory",
+      "kernel"
+    ],
+    "stages": [
+      "I-A2",
+      "I-B4"
+    ],
+    "kind": "model",
+    "benefit": "降低长上下文缓存容量与读取量",
+    "mechanism": "压缩缓存表示并由注意力内核读取或还原，和权重 / 激活量化分别配置。",
+    "scope": "长上下文或缓存成为容量、带宽瓶颈，且后端支持相应表示。",
+    "cost": "压缩、还原有开销；有损方案需评估长上下文质量。删除仍需使用的历史 KV 另有语义影响。",
+    "sources": [
+      "vllm-kv-quant",
+      "kivi",
+      "cache",
+      "ascend-kv-quant"
+    ],
+    "related": [
+      "M014",
+      "M016",
+      "M017"
+    ]
+  },
+  {
+    "id": "M006",
+    "name": "矩阵乘法与访存优化",
+    "tags": [
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "I-A2",
+      "I-A3",
+      "T-A1",
+      "T-A3"
+    ],
+    "kind": "execution",
+    "benefit": "提高计算单元与内存带宽的有效利用",
+    "mechanism": "通过分块、布局、对齐、片上复用与流水，针对矩阵形状选择高效 GEMM 实现。",
+    "scope": "线性层与前反向矩阵计算；NVIDIA Tensor Core 与昇腾 Cube 需各自调优。",
+    "cost": "大批次的最佳内核未必适合小批次 Decode；要看端到端瓶颈。",
+    "sources": [
+      "gemm-background",
+      "triton-matmul",
+      "cutlass-efficient",
+      "ascend-matmul-index",
+      "ascend-matmul-tiling"
+    ],
+    "related": [
+      "M008",
+      "M009",
+      "M010",
+      "M018",
+      "M047"
+    ]
+  },
+  {
+    "id": "M007",
+    "name": "FlashAttention 类精确注意力内核",
+    "tags": [
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "I-A2",
+      "T-A1",
+      "T-A3"
+    ],
+    "kind": "execution",
+    "benefit": "减少注意力中间矩阵的内存读写",
+    "mechanism": "分块计算并在线累计结果，避免把完整注意力矩阵反复写入外部内存；训练还需配套反向。",
+    "scope": "受支持的头维度、精度、掩码与设备；Prefill 和训练是典型场景。",
+    "cost": "数学计算关系保持，但浮点执行顺序可能不同；并不是靠删除历史 token 加速。",
+    "sources": [
+      "flash"
+    ],
+    "related": [
+      "M003",
+      "M008",
+      "M037"
+    ]
+  },
+  {
+    "id": "M008",
+    "name": "Decode 专项内核：Split-KV / 多块 Attention",
+    "tags": [
+      "kernel"
+    ],
+    "stages": [
+      "I-A2"
+    ],
+    "kind": "execution",
+    "benefit": "提高小批次、长上下文解码的并行度",
+    "mechanism": "把历史 KV 的处理分给多个工作块，再合并部分结果，减少单个工作块承担过多计算的情况。",
+    "scope": "Decode 并行度不足且适配内核可用；按批量、上下文与头数选择。",
+    "cost": "拆分和合并也有开销，短上下文或足够大批次未必获益。",
+    "sources": [
+      "flash-decoding",
+      "trt-decode-attention",
+      "flashinfer-attention"
+    ],
+    "related": [
+      "M007",
+      "M016",
+      "M005",
+      "M006"
+    ]
+  },
+  {
+    "id": "M009",
+    "name": "本地算子融合",
+    "tags": [
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "I-A2",
+      "T-A1",
+      "T-A3"
+    ],
+    "kind": "execution",
+    "benefit": "减少中间写回和内核启动",
+    "mechanism": "融合相邻的归一化、激活、残差或矩阵运算尾部等本地计算。",
+    "scope": "有可融合的数据依赖、形状和内核支持。",
+    "cost": "融合可能增加寄存器或片上内存占用；普通计算融合与通算融合应区分。",
+    "sources": [
+      "tuning",
+      "triton-softmax",
+      "compile-214",
+      "torchair-repo"
+    ],
+    "related": [
+      "M011",
+      "M027",
+      "M041"
+    ]
+  },
+  {
+    "id": "M010",
+    "name": "MoE 计算优化：Grouped GEMM 与重排融合",
+    "tags": [
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "I-A2",
+      "T-A1",
+      "T-A3"
+    ],
+    "kind": "execution",
+    "benefit": "减少零碎专家计算与 token 重排开销",
+    "mechanism": "成组执行专家矩阵乘法，并优化路由、分发前后的 token 排列与还原。",
+    "scope": "MoE 模型；尤其是每卡多个专家或小矩阵利用率不足。",
+    "cost": "收益依赖 token 分布和专家负载；计算优化不能单独解决网络拥塞。",
+    "sources": [
+      "cutlass-grouped",
+      "cudnn-moe-gemm",
+      "ascend-grouped-matmul",
+      "deep-ep"
+    ],
+    "related": [
+      "M006",
+      "M009",
+      "M030",
+      "M026",
+      "M047"
+    ]
+  },
+  {
+    "id": "M011",
+    "name": "输出投影 / Loss 内存优化",
+    "tags": [
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "I-A3",
+      "T-A2"
+    ],
+    "kind": "execution",
+    "benefit": "减少大词表中间结果与不必要计算",
+    "mechanism": "推理仅生成需要位置的 logits；训练可按支持情况融合或分块输出投影和交叉熵。",
+    "scope": "大词表或 logits 占用明显，且输出需求与损失实现允许。",
+    "cost": "不能删除实际需要的 token 分数；须保持损失掩码、归一化和分布式语义。",
+    "sources": [
+      "cce-paper",
+      "cce-repo",
+      "cross-entropy-api"
+    ],
+    "related": [
+      "M006",
+      "M007",
+      "M009",
+      "M020",
+      "M024",
+      "M039"
+    ]
+  },
+  {
+    "id": "M012",
+    "name": "采样与约束解码实现优化",
+    "tags": [
+      "kernel",
+      "schedule"
+    ],
+    "stages": [
+      "I-A4",
+      "I-B5"
+    ],
+    "kind": "execution",
+    "benefit": "减少选择 token 时的计算与主机等待",
+    "mechanism": "优化 top-k / top-p、掩码处理及约束状态更新，减少 CPU 与设备的往返同步。",
+    "scope": "生成或结构化输出链路中采样、约束处理成为瓶颈。",
+    "cost": "须保持所要求的采样分布和约束；改成贪心是生成策略变化。",
+    "sources": [
+      "flashinfer-sampling",
+      "flashinfer-sampling-blog",
+      "flashinfer-filter-order",
+      "xgrammar-repo"
+    ],
+    "related": [
+      "M011",
+      "M013",
+      "M019",
+      "M023",
+      "M021"
+    ]
+  },
+  {
+    "id": "M013",
+    "name": "投机解码",
+    "tags": [
+      "algorithm",
+      "schedule"
+    ],
+    "stages": [
+      "I-A4",
+      "I-B3"
+    ],
+    "kind": "execution",
+    "benefit": "减少目标模型逐 token 串行调用",
+    "mechanism": "由草稿模型、辅助预测头或 n-gram 等提出候选，再用目标模型批量验证；MTP 可参与候选生成。",
+    "scope": "候选接受率和验证成本合适，并有配套缓存与调度支持。",
+    "cost": "不同变体对分布保持的保证不同；草稿太贵或接受率低可导致减速。",
+    "sources": [
+      "speculative-paper",
+      "speculative-sampling",
+      "vllm-speculative",
+      "trt"
+    ],
+    "related": [
+      "M001",
+      "M014",
+      "M021"
+    ]
+  },
+  {
+    "id": "M014",
+    "name": "历史 KV 复用",
+    "tags": [
+      "algorithm",
+      "memory"
+    ],
+    "stages": [
+      "I-A2",
+      "I-B4"
+    ],
+    "kind": "execution",
+    "benefit": "避免重算历史位置的 K、V",
+    "mechanism": "Prefill 建立缓存，后续 Decode 读取缓存并追加当前输入位置的 K、V。",
+    "scope": "常规自回归生成；缓存必须匹配层、位置、模型与请求。",
+    "cost": "消耗随上下文增长的内存；新 token 仍需经过全部模型层。",
+    "sources": [
+      "hf-cache",
+      "cache"
+    ],
+    "related": [
+      "M015",
+      "M016",
+      "M005"
+    ]
+  },
+  {
+    "id": "M015",
+    "name": "前缀缓存与缓存感知路由",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "I-B2",
+      "I-B4"
+    ],
+    "kind": "execution",
+    "benefit": "省去兼容公共前缀的重复 Prefill",
+    "mechanism": "复用已计算前缀的 KV，并尽量把请求发给持有该缓存的实例。",
+    "scope": "前缀重复率较高；模型、token、位置及适配器等兼容条件一致。",
+    "cost": "缓存占用容量，命中率不固定；与直接返回旧答案的结果缓存不同。",
+    "sources": [
+      "vllm-prefix",
+      "vllm-prefix-design",
+      "dynamo-routing",
+      "cache"
+    ],
+    "related": [
+      "M014",
+      "M029",
+      "M045"
+    ]
+  },
+  {
+    "id": "M016",
+    "name": "分页 KV 管理 / PagedAttention",
+    "tags": [
+      "memory",
+      "kernel"
+    ],
+    "stages": [
+      "I-B4",
+      "I-A2"
+    ],
+    "kind": "capacity",
+    "benefit": "减少碎片与过量预留，容纳更多请求",
+    "mechanism": "按块分配 KV，并由配套注意力内核按页访问；回收和共享策略由系统管理。",
+    "scope": "并发请求长度变化明显的推理服务。",
+    "cost": "更多可用容量可间接增加吞吐，但不能保证单次 Attention 更快。",
+    "sources": [
+      "paged"
+    ],
+    "related": [
+      "M014",
+      "M015",
+      "M021"
+    ]
+  },
+  {
+    "id": "M017",
+    "name": "KV 分层、卸载与淘汰",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "I-B4",
+      "I-B6"
+    ],
+    "kind": "capacity",
+    "benefit": "在缓存容量与迁移成本间取舍",
+    "mechanism": "在设备、主机等层级存放缓存；淘汰可重算的缓存副本，必要时回迁或重算。",
+    "scope": "缓存容量不足、存在冷前缀或请求生命周期差异。",
+    "cost": "迁移消耗带宽和时间；淘汰可重算副本不同于永久丢弃模型应读取的上下文。",
+    "sources": [
+      "cache",
+      "hf-cache-strategies",
+      "vllm-prefix-design",
+      "cuda-streams"
+    ],
+    "related": [
+      "M005",
+      "M015",
+      "M016",
+      "M038",
+      "M047"
+    ]
+  },
+  {
+    "id": "M018",
+    "name": "图编译、形状专门化与自动调优",
+    "tags": [
+      "kernel",
+      "schedule"
+    ],
+    "stages": [
+      "I-B0",
+      "I-B5",
+      "T-B0",
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "execution",
+    "benefit": "为实际形状生成更高效的执行程序",
+    "mechanism": "编译计算图、选择内核与布局，并按常见形状分桶或专门化；自动测量候选实现。",
+    "scope": "稳定或可分桶的工作负载，且编译后端支持相关操作。",
+    "cost": "编译、缓存和重编译有成本；图断裂、过多形状可能降低收益。",
+    "sources": [
+      "compile-214",
+      "compile-intro",
+      "compile-faq",
+      "compile-recompilation",
+      "compile-breaks",
+      "torchair-repo",
+      "torchair-gears"
+    ],
+    "related": [
+      "M006",
+      "M009",
+      "M019"
+    ]
+  },
+  {
+    "id": "M019",
+    "name": "执行图捕获与重放",
+    "tags": [
+      "schedule"
+    ],
+    "stages": [
+      "I-B0",
+      "I-B5",
+      "T-B0",
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "execution",
+    "benefit": "降低主机逐次下发与调度开销",
+    "mechanism": "预先记录可复用的设备执行序列并重放，如 CUDA Graphs 或对应平台的执行图机制。",
+    "scope": "结构和缓冲区可复用、主机下发占比较高的路径。",
+    "cost": "形状、地址与运行时有约束；捕获通信时还要满足跨卡调用顺序。",
+    "sources": [
+      "cuda-graphs-guide",
+      "pytorch-cuda-graphs",
+      "ascend-capture"
+    ],
+    "related": [
+      "M018",
+      "M023",
+      "M047"
+    ]
+  },
+  {
+    "id": "M020",
+    "name": "长度分组、去 Padding 与 Packing",
+    "tags": [
+      "schedule",
+      "kernel"
+    ],
+    "stages": [
+      "I-B3",
+      "T-B2"
+    ],
+    "kind": "execution",
+    "benefit": "提高有效 token 占比",
+    "mechanism": "按长度组织输入或使用变长内核；训练中将短样本打包并正确隔离样本边界。",
+    "scope": "变长输入或大量短样本；配套内核与数据格式支持。",
+    "cost": "训练 Packing 的注意力掩码、标签、位置处理必须正确；吞吐提升不代表每个请求延迟下降。",
+    "sources": [
+      "hf-padding",
+      "varlen-attention",
+      "nemo-packing",
+      "mbridge-packing"
+    ],
+    "related": [
+      "M021",
+      "M033",
+      "M018",
+      "M039"
+    ]
+  },
+  {
+    "id": "M021",
+    "name": "Continuous Batching / 连续批处理",
+    "tags": [
+      "schedule"
+    ],
+    "stages": [
+      "I-B3",
+      "I-B6"
+    ],
+    "kind": "execution",
+    "benefit": "及时填补已结束请求释放的执行位置",
+    "mechanism": "按生成轮次动态加入或移除请求，提高设备忙碌程度。",
+    "scope": "多个并发、长度不同的生成请求。",
+    "cost": "批次增大可能提高吞吐并增加每 token 延迟；须结合服务目标。",
+    "sources": [
+      "paged",
+      "trt"
+    ],
+    "related": [
+      "M016",
+      "M022",
+      "M029"
+    ]
+  },
+  {
+    "id": "M022",
+    "name": "Chunked Prefill / 分块预填充",
+    "tags": [
+      "schedule"
+    ],
+    "stages": [
+      "I-B3"
+    ],
+    "kind": "execution",
+    "benefit": "降低长输入对其他请求的阻塞",
+    "mechanism": "把一个长 Prefill 拆成多个可调度片段，与 Decode 等任务协调执行。",
+    "scope": "长短请求混合或需控制流式生成延迟的服务。",
+    "cost": "分块大小影响吞吐和首 token 时间；仍需处理完整的有效输入。",
+    "sources": [
+      "vllm-opt",
+      "sarathi-serve"
+    ],
+    "related": [
+      "M021",
+      "M028"
+    ]
+  },
+  {
+    "id": "M023",
+    "name": "异步调度与 CPU / 设备重叠",
+    "tags": [
+      "schedule"
+    ],
+    "stages": [
+      "I-B3",
+      "I-B5",
+      "I-B6",
+      "T-B2"
+    ],
+    "kind": "execution",
+    "benefit": "减少主机准备导致的设备空闲",
+    "mechanism": "准备后续工作、搬运输入与当前设备计算并行，避免不必要的阻塞同步。",
+    "scope": "任务依赖允许提前准备，且主机或输入传输是瓶颈。",
+    "cost": "异步增加状态管理与依赖约束；不能提前使用尚未生成的结果。",
+    "sources": [
+      "overlap",
+      "cuda-streams",
+      "pinmem-guide",
+      "ascend-async-copy"
+    ],
+    "related": [
+      "M019",
+      "M033",
+      "M026",
+      "M040"
+    ]
+  },
+  {
+    "id": "M024",
+    "name": "并行策略与设备映射",
+    "tags": [
+      "schedule",
+      "communication",
+      "memory"
+    ],
+    "stages": [
+      "I-B0",
+      "I-B5",
+      "T-B0",
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "capacity",
+    "benefit": "在容量、吞吐与通信成本之间选择分工",
+    "mechanism": "组合 DP、TP、PP、CP、EP 等切分；训练还可用 Megatron 式 SP 分片部分激活，并按拓扑映射设备。",
+    "scope": "多设备执行；不同框架术语与组合支持需核对。",
+    "cost": "卡数增加会带来通信和空闲；SP 与 CP 不能只因都切序列就视为同一技术。",
+    "sources": [
+      "parallel",
+      "megatron-paper",
+      "tp-tutorial",
+      "gpipe-paper",
+      "ms"
+    ],
+    "related": [
+      "M025",
+      "M036",
+      "M040"
+    ]
+  },
+  {
+    "id": "M025",
+    "name": "通信算法、协议与拓扑优化",
+    "tags": [
+      "communication"
+    ],
+    "stages": [
+      "I-B0",
+      "I-B5",
+      "T-B0",
+      "T-B3",
+      "T-B4",
+      "T-B5"
+    ],
+    "kind": "execution",
+    "benefit": "降低同等数据交换的延迟或提高带宽",
+    "mechanism": "按消息大小与拓扑选择 Ring、Tree、分层通信和协议；利用支持的高速互联、直接传输与归约卸载。",
+    "scope": "多卡 / 多机；例如 NCCL / HCCL 的具体能力需按硬件与版本确认。",
+    "cost": "小消息与大消息最优方案可能不同；硬件归约卸载并非通用功能。",
+    "sources": [
+      "nccl-collectives",
+      "nccl-env",
+      "nccl-double-tree",
+      "nccl-test-performance",
+      "hccl-algorithms"
+    ],
+    "related": [
+      "M024",
+      "M026",
+      "M027",
+      "M030"
+    ]
+  },
+  {
+    "id": "M026",
+    "name": "通信分桶、预取与计算重叠",
+    "tags": [
+      "communication",
+      "schedule"
+    ],
+    "stages": [
+      "I-B5",
+      "T-B3",
+      "T-B4",
+      "T-B5",
+      "T-B6"
+    ],
+    "kind": "execution",
+    "benefit": "隐藏部分等待，减少小通信开销",
+    "mechanism": "就绪梯度分桶归约，提前汇集下一层参数；合并小通信或在满足依赖时与独立计算重叠。",
+    "scope": "DP / TP / PP / CP / EP 与分片训练中的适配路径。",
+    "cost": "桶太大延迟发送，太小增加启动；重叠会争用资源，也不会消除传输数据量。",
+    "sources": [
+      "comm",
+      "moe"
+    ],
+    "related": [
+      "M027",
+      "M036",
+      "M040"
+    ]
+  },
+  {
+    "id": "M027",
+    "name": "通算融合：MC² 等",
+    "tags": [
+      "kernel",
+      "communication"
+    ],
+    "stages": [
+      "I-A2",
+      "I-B5",
+      "T-A1",
+      "T-A3",
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "execution",
+    "benefit": "在算子级隐藏计算与通信的串行等待",
+    "mechanism": "将 MatMul 与 AllGather / ReduceScatter / AllReduce 协同分块流水；昇腾 MC² 与 NVIDIA cuBLASMp 等提供相关组合。",
+    "scope": "适配的层内计算、精度、形状和通信组。",
+    "cost": "融合算子不等于一个底层 kernel；切块过细和带宽竞争可能抵消收益。",
+    "sources": [
+      "mc2",
+      "cublasmp"
+    ],
+    "related": [
+      "M009",
+      "M026"
+    ]
+  },
+  {
+    "id": "M028",
+    "name": "Prefill / Decode 分离",
+    "tags": [
+      "schedule",
+      "communication",
+      "memory"
+    ],
+    "stages": [
+      "I-B0",
+      "I-B4",
+      "I-B5"
+    ],
+    "kind": "execution",
+    "benefit": "分别优化两个阶段的资源与调度",
+    "mechanism": "把 Prefill 与 Decode 部署到不同资源池，并传递 KV 及请求状态完成衔接。",
+    "scope": "阶段负载不同、规模足够且有高效 KV 传输的服务。",
+    "cost": "多出 KV 传输、协调和路由；短请求或网络受限时可能得不偿失。",
+    "sources": [
+      "distserve",
+      "vllm-disagg",
+      "dynamo",
+      "ascend-pd-transfer"
+    ],
+    "related": [
+      "M022",
+      "M015",
+      "M017",
+      "M025",
+      "M029"
+    ]
+  },
+  {
+    "id": "M029",
+    "name": "负载均衡、准入与弹性调度",
+    "tags": [
+      "schedule"
+    ],
+    "stages": [
+      "I-B2",
+      "I-B3",
+      "I-B6"
+    ],
+    "kind": "execution",
+    "benefit": "控制排队、尾延迟与资源浪费",
+    "mechanism": "按负载和缓存路由，管理优先级、抢占、取消与副本数量；及时释放已不需要的任务。",
+    "scope": "在线多请求或多副本服务；策略由服务目标决定。",
+    "cost": "调度目标相互牵制；增加副本占用更多资源，不能只比较总吞吐。",
+    "sources": [
+      "vllm-scheduler",
+      "vllm-tuning-current",
+      "dynamo-router-current",
+      "dynamo-planner-current"
+    ],
+    "related": [
+      "M015",
+      "M016",
+      "M017",
+      "M021",
+      "M022",
+      "M032",
+      "M044"
+    ]
+  },
+  {
+    "id": "M030",
+    "name": "MoE 专家布局与负载均衡",
+    "tags": [
+      "schedule",
+      "communication"
+    ],
+    "stages": [
+      "I-B5",
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "execution",
+    "benefit": "减少热点专家和设备等待",
+    "mechanism": "调整专家放置、分发策略和适当的副本布局，并协调专家通信与计算。",
+    "scope": "MoE 的 token 分布不均或专家通信成为瓶颈。",
+    "cost": "专家复制多占内存；训练中改变路由或丢 token 的策略需另评估质量。",
+    "sources": [
+      "eplb-original",
+      "deep-ep",
+      "vllm-ep",
+      "deepseek-v3",
+      "hccl-algorithms"
+    ],
+    "related": [
+      "M010",
+      "M024",
+      "M025",
+      "M026",
+      "M047"
+    ]
+  },
+  {
+    "id": "M031",
+    "name": "多 LoRA 服务与适配器合并",
+    "tags": [
+      "kernel",
+      "schedule",
+      "memory"
+    ],
+    "stages": [
+      "I-P0",
+      "I-B2",
+      "I-B5"
+    ],
+    "kind": "execution",
+    "benefit": "降低多适配器服务或额外分支的开销",
+    "mechanism": "适配器按需加载与批处理；固定适配器在允许时可合并进基座权重。",
+    "scope": "LoRA 微调后的模型部署；多租户和固定适配器场景应分别设计。",
+    "cost": "并非所有量化与适配器都可直接合并；动态多适配器不能共用一份任意合并权重。",
+    "sources": [
+      "lora-paper",
+      "slora-paper",
+      "peft-lora-reference",
+      "peft-quantization",
+      "vllm-lora"
+    ],
+    "related": [
+      "M034",
+      "M004",
+      "M015",
+      "M021",
+      "M029",
+      "M047"
+    ]
+  },
+  {
+    "id": "M032",
+    "name": "加载、编译缓存与预热",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "I-B0",
+      "T-B0"
+    ],
+    "kind": "execution",
+    "benefit": "缩短冷启动和重启准备时间",
+    "mechanism": "并行加载、复用兼容的编译产物并提前执行典型形状，降低正式服务或训练前的等待。",
+    "scope": "启动、扩容、恢复阶段。",
+    "cost": "改善准备时间，不意味着稳定运行时每个 token 或训练步都会更快。",
+    "sources": [
+      "module-load-tips",
+      "compile-cache-recipe"
+    ],
+    "related": [
+      "M018",
+      "M019",
+      "M033",
+      "M042",
+      "M029"
+    ]
+  },
+  {
+    "id": "M033",
+    "name": "数据预处理、预取与异步搬运",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "I-B1",
+      "T-B1",
+      "T-B2"
+    ],
+    "kind": "execution",
+    "benefit": "减少输入链路造成的计算空闲",
+    "mechanism": "优化分词实现与缓存、并行读取和预处理，提前准备下一批并异步传入设备。",
+    "scope": "CPU、存储或输入搬运成为瓶颈；Tokenizer 本身仍是正常流程组件。",
+    "cost": "预取占用内存，线程数量和存储并发需按环境调整。",
+    "sources": [
+      "pytorch-data",
+      "pinmem-guide",
+      "cuda-streams",
+      "ascend-async-copy"
+    ],
+    "related": [
+      "M020",
+      "M023"
+    ]
+  },
+  {
+    "id": "M034",
+    "name": "参数高效微调：LoRA / QLoRA / 冻结",
+    "tags": [
+      "algorithm",
+      "memory"
+    ],
+    "stages": [
+      "T-P0",
+      "T-A3",
+      "T-A4"
+    ],
+    "kind": "strategy",
+    "benefit": "减少可训练参数及其梯度、优化器状态",
+    "mechanism": "冻结基座并训练小规模适配参数；QLoRA 同时以低位表示冻结基座。",
+    "scope": "适配任务的微调；不等同于从头全参数预训练。",
+    "cost": "基座前向和必要的反向仍需执行；量化还原有代价，节省容量不保证训练更快。",
+    "sources": [
+      "lora-paper",
+      "qlora-paper",
+      "peft-lora-reference",
+      "peft-quantization"
+    ],
+    "related": [
+      "M004",
+      "M031",
+      "M035",
+      "M036",
+      "M037",
+      "M039"
+    ]
+  },
+  {
+    "id": "M035",
+    "name": "混合精度训练",
+    "tags": [
+      "algorithm",
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "T-P0",
+      "T-A1",
+      "T-A3",
+      "T-A4"
+    ],
+    "kind": "strategy",
+    "benefit": "提高部分矩阵吞吐并降低资源需求",
+    "mechanism": "为不同计算、累加、权重与状态选择合适精度，例如 BF16 或受支持的 FP8 路径。",
+    "scope": "硬件、内核及训练配方支持；低精度不是只改一个 dtype。",
+    "cost": "需验证梯度、数值稳定性和收敛；计算精度、存储精度与通信精度并不等同。",
+    "sources": [
+      "moe",
+      "ms",
+      "peft"
+    ],
+    "related": [
+      "M004",
+      "M041"
+    ]
+  },
+  {
+    "id": "M036",
+    "name": "状态分片：ZeRO / FSDP",
+    "tags": [
+      "memory",
+      "schedule",
+      "communication"
+    ],
+    "stages": [
+      "T-B0",
+      "T-B3",
+      "T-B5",
+      "T-B6"
+    ],
+    "kind": "capacity",
+    "benefit": "降低每卡参数、梯度或优化器状态占用",
+    "mechanism": "ZeRO-1 分片优化器状态，2 进一步分片梯度，3 再分片参数；运行时按需归约与汇集。",
+    "scope": "大模型多卡训练；FSDP 有相近分片思路但实现与策略不完全相同。",
+    "cost": "更多分片可能增加通信；容量收益可帮助选择更好的批量与设备配置。",
+    "sources": [
+      "zero"
+    ],
+    "related": [
+      "M026",
+      "M038",
+      "M039"
+    ]
+  },
+  {
+    "id": "M037",
+    "name": "激活重计算 / Checkpointing",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "capacity",
+    "benefit": "减少保存的中间激活",
+    "mechanism": "按层、模块或操作选择保留结果；反向前重新执行未保存的部分。",
+    "scope": "训练激活占用是主要容量瓶颈；可采用选择性策略。",
+    "cost": "增加计算量；要比较释放内存后是否能采用更有效的训练配置。",
+    "sources": [
+      "ms",
+      "tuning"
+    ],
+    "related": [
+      "M007",
+      "M038"
+    ]
+  },
+  {
+    "id": "M038",
+    "name": "训练状态 / 激活卸载与回迁",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "T-B3",
+      "T-B4",
+      "T-B6"
+    ],
+    "kind": "capacity",
+    "benefit": "将部分容量压力转移到主机或存储",
+    "mechanism": "卸载激活、参数或优化器状态，并根据使用时机预取回设备；不同对象的生命周期不同。",
+    "scope": "设备内存不足且主机 / 存储容量、带宽允许。",
+    "cost": "引入搬运与等待，CPU / NVMe 路径不可视为等速替代设备内存。",
+    "sources": [
+      "zero",
+      "zero-offload",
+      "autograd-offload",
+      "cuda-streams"
+    ],
+    "related": [
+      "M036",
+      "M037",
+      "M033",
+      "M047"
+    ]
+  },
+  {
+    "id": "M039",
+    "name": "梯度累积与同步频率",
+    "tags": [
+      "schedule",
+      "communication",
+      "memory"
+    ],
+    "stages": [
+      "T-B2",
+      "T-B5"
+    ],
+    "kind": "capacity",
+    "benefit": "用多个小批次实现所需有效批量",
+    "mechanism": "分多次前反向累积梯度，再更新参数；适配实现可避免每个小批次都做完整梯度同步。",
+    "scope": "单个目标批次放不下，或需要调整同步与更新频率。",
+    "cost": "不减少总前向 / 反向计算；损失缩放、学习率和不同分片模式的同步要求须核对。",
+    "sources": [
+      "ddp-api",
+      "amp-examples",
+      "zero",
+      "comm"
+    ],
+    "related": [
+      "M026",
+      "M036",
+      "M043"
+    ]
+  },
+  {
+    "id": "M040",
+    "name": "流水线调度：1F1B、交错、DualPipe 类",
+    "tags": [
+      "schedule",
+      "communication"
+    ],
+    "stages": [
+      "T-B3",
+      "T-B4",
+      "T-B5"
+    ],
+    "kind": "execution",
+    "benefit": "减少流水线空闲并隐藏部分通信",
+    "mechanism": "安排多个 microbatch 的前后向次序；在支持的实现中拆分或延后部分梯度计算。",
+    "scope": "PP 或特定 MoE 混合并行，需足够 microbatch 和匹配实现。",
+    "cost": "调度会改变激活驻留和通信压力；名称含“零气泡”也不代表所有条件下都没有空闲。",
+    "sources": [
+      "gpipe-paper",
+      "pytorch-pipeline",
+      "pipedream-paper",
+      "zero-bubble-paper",
+      "dualpipe",
+      "ms"
+    ],
+    "related": [
+      "M024",
+      "M026",
+      "M037"
+    ]
+  },
+  {
+    "id": "M041",
+    "name": "融合优化器与状态精度优化",
+    "tags": [
+      "kernel",
+      "memory"
+    ],
+    "stages": [
+      "T-A4",
+      "T-B6"
+    ],
+    "kind": "execution",
+    "benefit": "减少更新阶段的启动、读写或状态容量",
+    "mechanism": "融合大量逐元素更新；在支持的训练配方中压缩优化器状态或复用参数副本。",
+    "scope": "更新开销或优化器状态占用明显。",
+    "cost": "改变状态表示需评估数值与收敛；融合执行与分片存储是不同维度。",
+    "sources": [
+      "adamw-api",
+      "optim-execution",
+      "optim-bf16",
+      "bnb-optimizers"
+    ],
+    "related": [
+      "M009",
+      "M035",
+      "M036",
+      "M038",
+      "M039",
+      "M042"
+    ]
+  },
+  {
+    "id": "M042",
+    "name": "异步检查点与故障恢复",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "T-B7"
+    ],
+    "kind": "execution",
+    "benefit": "减少保存阻塞与故障后的重做工作",
+    "mechanism": "分片或异步保存训练状态，并结合保存频率与恢复路径优化长期有效训练时间。",
+    "scope": "持续训练、多机作业或经常重启的环境。",
+    "cost": "快照一致性、存储吞吐和额外缓冲占用需处理；保存太少会增加故障损失。",
+    "sources": [
+      "dcp-async",
+      "dcp-api"
+    ],
+    "related": [
+      "M032",
+      "M036",
+      "M038",
+      "M041",
+      "M043"
+    ]
+  },
+  {
+    "id": "M043",
+    "name": "数据与训练策略：面向目标质量",
+    "tags": [
+      "algorithm",
+      "schedule"
+    ],
+    "stages": [
+      "T-P0",
+      "T-B1",
+      "T-B7"
+    ],
+    "kind": "strategy",
+    "benefit": "尝试降低达到目标质量的总成本",
+    "mechanism": "实验比较数据质量和配比、学习率、有效批量与训练长度，并以质量里程碑衡量总耗时。",
+    "scope": "允许调整训练方案；这是实验设计方向，不是固定加速开关。",
+    "cost": "单步变快可能需要更多步才能收敛；改变训练数据与目标后不能只比 tokens/s。",
+    "sources": [
+      "large-batch-original",
+      "compute-optimal-original",
+      "dedup-original",
+      "doremi-original"
+    ],
+    "related": [
+      "M020",
+      "M033",
+      "M039",
+      "M041",
+      "M042",
+      "M001"
+    ]
+  },
+  {
+    "id": "M044",
+    "name": "上下文、模型路由与生成预算",
+    "tags": [
+      "algorithm",
+      "schedule"
+    ],
+    "stages": [
+      "I-B1",
+      "I-B2",
+      "I-A4"
+    ],
+    "kind": "strategy",
+    "benefit": "减少业务请求所需的总计算",
+    "mechanism": "筛选相关上下文，为任务选择合适模型，并控制不必要的生成；与固定模型的内核提速分别评估。",
+    "scope": "应用允许调整输入、模型或输出策略，并有业务质量评测。",
+    "cost": "缩短上下文、换小模型或限制输出可能损失能力；不能当作等质量性能保证。",
+    "sources": [
+      "routellm-original",
+      "llmlingua-original",
+      "generation-config"
+    ],
+    "related": [
+      "M001",
+      "M012",
+      "M015",
+      "M029",
+      "M045"
+    ]
+  },
+  {
+    "id": "M045",
+    "name": "结果缓存",
+    "tags": [
+      "memory",
+      "schedule"
+    ],
+    "stages": [
+      "I-B2",
+      "I-B6"
+    ],
+    "kind": "strategy",
+    "benefit": "满足复用条件时省去整次生成",
+    "mechanism": "复用已有完整结果；精确匹配与语义近似匹配需要不同的有效性规则。",
+    "scope": "答案可重复使用且上下文、时效、权限与配置满足要求。",
+    "cost": "语义缓存可能返回并不等价的结果；不能混同于保持模型计算的 KV 前缀复用。",
+    "sources": [
+      "redis-semantic",
+      "apim-semantic",
+      "apisix-ai-cache"
+    ],
+    "related": [
+      "M015",
+      "M032",
+      "M044",
+      "M029"
+    ]
+  },
+  {
+    "id": "M046",
+    "name": "RL 外层资源与权重同步",
+    "tags": [
+      "schedule",
+      "communication"
+    ],
+    "stages": [
+      "X-RL"
+    ],
+    "kind": "strategy",
+    "benefit": "协调生成、奖励与策略更新的资源等待",
+    "mechanism": "在 rollout、奖励 / 参考模型与训练角色之间配置资源，协调权重传递及同步或异步执行。",
+    "scope": "强化学习后训练：rollout、奖励/反馈与策略更新的资源调度和参数交接；算法定义和支持范围按配方核对。",
+    "cost": "需额外处理策略滞后和数据一致性；不能直接把 SFT 的单一循环套用。",
+    "sources": [
+      "ppo-original",
+      "verl-engine-current",
+      "verl-async-current"
+    ],
+    "related": [
+      "M021",
+      "M024",
+      "M026",
+      "M028",
+      "M035",
+      "M036",
+      "M042",
+      "M043"
+    ]
+  },
+  {
+    "id": "M047",
+    "name": "缓冲区复用与内存布局规划",
+    "tags": [
+      "memory",
+      "kernel",
+      "schedule"
+    ],
+    "stages": [
+      "I-B0",
+      "I-B4",
+      "T-B0",
+      "T-B3",
+      "T-B4"
+    ],
+    "kind": "execution",
+    "benefit": "减少反复分配、复制与多余驻留",
+    "mechanism": "复用生命周期不冲突的工作区，选择布局并避免不必要的转置和中间副本。",
+    "scope": "动态分配、布局转换或工作区成为瓶颈的执行路径。",
+    "cost": "必须满足生命周期和并发访问约束；过量预留工作区会挤占缓存或激活容量。",
+    "sources": [
+      "cuda-memory",
+      "tensor-views",
+      "cuda-streams",
+      "compile-214"
+    ],
+    "related": [
+      "M018",
+      "M019",
+      "M038",
+      "M009"
+    ]
+  }
+]

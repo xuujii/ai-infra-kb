@@ -1,0 +1,674 @@
+{
+  "gemm-background": {
+    "title": "NVIDIA · GEMM形状、算术强度与分块背景",
+    "url": "https://docs.nvidia.com/deeplearning/performance/dl-performance-matrix-multiplication/index.html"
+  },
+  "triton-matmul": {
+    "title": "Triton · 分块矩阵乘法官方教程",
+    "url": "https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html"
+  },
+  "cutlass-efficient": {
+    "title": "NVIDIA CUTLASS · 高效GEMM层级与流水",
+    "url": "https://docs.nvidia.com/cutlass/latest/media/docs/cpp/efficient_gemm.html"
+  },
+  "ascend-matmul-index": {
+    "title": "CANN商用版8.5.0 · Matmul性能优化入口",
+    "url": "https://www.hiascend.com/doc_center/source/zh/canncommercial/850/opdevg/Ascendcopdevg/atlas_ascendc_best_practices_10_10002.html"
+  },
+  "ascend-matmul-tiling": {
+    "title": "Ascend C · Matmul Tiling调优案例",
+    "url": "https://asc.gitcode.com/guide/operator_practice/best_practices/matmul_tuning_cases/matmul_tiling_strategy.html"
+  },
+  "flash-decoding": {
+    "title": "Stanford CRFM · Flash-Decoding原作者讲解",
+    "url": "https://crfm.stanford.edu/2023/10/12/flashdecoding.html"
+  },
+  "trt-decode-attention": {
+    "title": "TensorRT-LLM · 多块Decode Attention与选择条件",
+    "url": "https://nvidia.github.io/TensorRT-LLM/advanced/gpt-attention.html"
+  },
+  "flashinfer-attention": {
+    "title": "FlashInfer 0.7.1 · Attention计划、Split-KV与归约约束",
+    "url": "https://docs.flashinfer.ai/api/attention.html"
+  },
+  "cutlass-grouped": {
+    "title": "NVIDIA CUTLASS · Grouped Kernel Scheduler",
+    "url": "https://docs.nvidia.com/cutlass/latest/media/docs/cpp/grouped_scheduler.html"
+  },
+  "cudnn-moe-gemm": {
+    "title": "NVIDIA cuDNN Frontend 1.18 · MoE Grouped Matmul",
+    "url": "https://docs.nvidia.com/deeplearning/cudnn/v1.18.0/operations/MoeGroupedMatmul.html"
+  },
+  "ascend-grouped-matmul": {
+    "title": "Ascend cann-ops-adv · GroupedMatmulV2接口与分组语义",
+    "url": "https://gitee.com/ascend/cann-ops-adv/blob/master/docs/GroupedMatmulV2.md?skip_mobile=true"
+  },
+  "nccl-collectives": {
+    "title": "NCCL 2.32 · 集合通信操作与rank语义",
+    "url": "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/collectives.html"
+  },
+  "nccl-env": {
+    "title": "NCCL 2.32 · 算法、协议与配置约束",
+    "url": "https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/env.html"
+  },
+  "nccl-test-performance": {
+    "title": "NVIDIA nccl-tests · algbw/busbw指标定义",
+    "url": "https://github.com/NVIDIA/nccl-tests/blob/master/doc/PERFORMANCE.md"
+  },
+  "nccl-double-tree": {
+    "title": "NVIDIA · NCCL双二叉树与分层通信设计",
+    "url": "https://developer.nvidia.com/blog/massively-scale-deep-learning-training-nccl-2-4/"
+  },
+  "gpudirect-rdma": {
+    "title": "NVIDIA · GPUDirect RDMA通路与约束",
+    "url": "https://docs.nvidia.com/cuda/gpudirect-rdma/"
+  },
+  "hccl-algorithms": {
+    "title": "CANN 8.2.RC1 · HCCL通信域与分层算法",
+    "url": "https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/82RC1/hccl/hcclug/hcclug_000006.html"
+  },
+  "nvidia-nvl72": {
+    "title": "NVIDIA · GB200 NVL72及72GPU NVLink域",
+    "url": "https://www.nvidia.com/en-us/data-center/gb200-nvl72/"
+  },
+  "distserve": {
+    "title": "DistServe · 面向goodput的Prefill/Decode分离原始论文",
+    "url": "https://arxiv.org/abs/2401.09670"
+  },
+  "vllm-disagg": {
+    "title": "vLLM · 实验性PD分离与connector",
+    "url": "https://docs.vllm.ai/en/latest/features/disagg_prefill/"
+  },
+  "ascend-pd-transfer": {
+    "title": "CANN商用版8.5.0 · 单边通信库的PD分离应用",
+    "url": "https://www.hiascend.com/doc_center/source/zh/canncommercial/850/commlib/hixlug/llmcdv2_42_06.html"
+  },
+  "eplb-original": {
+    "title": "DeepSeek · EPLB原作者专家复制与放置算法",
+    "url": "https://github.com/deepseek-ai/EPLB"
+  },
+  "deep-ep": {
+    "title": "DeepSeek · DeepEP dispatch/combine通信实现",
+    "url": "https://github.com/deepseek-ai/DeepEP"
+  },
+  "deepseek-v3": {
+    "title": "DeepSeek-V3 Technical Report · MoE路由与训练",
+    "url": "https://arxiv.org/abs/2412.19437"
+  },
+  "vllm-ep": {
+    "title": "vLLM · Expert Parallel部署与EPLB",
+    "url": "https://docs.vllm.ai/en/latest/serving/expert_parallel_deployment/"
+  },
+  "hf-cache-strategies": {
+    "title": "Transformers · KV cache策略与逐层卸载",
+    "url": "https://huggingface.co/docs/transformers/kv_cache"
+  },
+  "zero-offload": {
+    "title": "DeepSpeed · ZeRO-Offload与CPU优化器",
+    "url": "https://www.deepspeed.ai/tutorials/zero-offload/"
+  },
+  "autograd-offload": {
+    "title": "PyTorch 2.14 · save_on_cpu与saved_tensors_hooks",
+    "url": "https://docs.pytorch.org/docs/2.14/autograd.html#torch.autograd.graph.save_on_cpu"
+  },
+  "cuda-memory": {
+    "title": "PyTorch 2.14 · CUDA缓存分配器与内存统计",
+    "url": "https://docs.pytorch.org/docs/2.14/notes/cuda.html#memory-management"
+  },
+  "tensor-views": {
+    "title": "PyTorch 2.14 · Tensor view、stride与连续布局",
+    "url": "https://docs.pytorch.org/docs/2.14/tensor_view.html"
+  },
+  "hf-padding": {
+    "title": "Transformers · Padding与截断（main）",
+    "url": "https://huggingface.co/docs/transformers/main/pad_truncation"
+  },
+  "varlen-attention": {
+    "title": "PyTorch · Variable Length Attention官方教程",
+    "url": "https://docs.pytorch.org/tutorials/intermediate/variable_length_attention_tutorial.html"
+  },
+  "nemo-packing": {
+    "title": "NeMo 25.04 · Sequence Packing与样本边界",
+    "url": "https://docs.nvidia.com/nemo-framework/user-guide/25.04/sft_peft/packed_sequence.html"
+  },
+  "mbridge-packing": {
+    "title": "Megatron Bridge · Packed Sequences（main）",
+    "url": "https://github.com/NVIDIA-NeMo/Megatron-Bridge/blob/main/docs/training/packed-sequences.md"
+  },
+  "pinmem-guide": {
+    "title": "PyTorch · pin_memory与non_blocking使用指南",
+    "url": "https://docs.pytorch.org/tutorials/intermediate/pinmem_nonblock.html"
+  },
+  "pytorch-data": {
+    "title": "PyTorch 2.14 · DataLoader与输入数据组织",
+    "url": "https://docs.pytorch.org/docs/2.14/data.html"
+  },
+  "cuda-streams": {
+    "title": "PyTorch 2.14 · CUDA stream、等待与内存生命周期",
+    "url": "https://docs.pytorch.org/docs/2.14/notes/cuda.html#cuda-streams"
+  },
+  "ascend-async-copy": {
+    "title": "CANN Community 9.1.0 · aclrtMemcpyAsync与Host内存约束",
+    "url": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/910/API/runtimeapi/aclcppdevg_03_0106.html"
+  },
+  "compile-214": {
+    "title": "PyTorch 2.14 · torch.compile参数、模式与后端",
+    "url": "https://docs.pytorch.org/docs/2.14/generated/torch.compile.html"
+  },
+  "compile-intro": {
+    "title": "PyTorch · torch.compile入门教程",
+    "url": "https://docs.pytorch.org/tutorials/intermediate/torch_compile_tutorial.html"
+  },
+  "compile-faq": {
+    "title": "PyTorch 2.14 · 编译与Autograd常见问题",
+    "url": "https://docs.pytorch.org/docs/2.14/user_guide/torch_compiler/torch.compiler_faq.html"
+  },
+  "compile-recompilation": {
+    "title": "PyTorch 2.14 · guards与重编译",
+    "url": "https://docs.pytorch.org/docs/2.14/user_guide/torch_compiler/compile/programming_model.recompilation.html"
+  },
+  "compile-breaks": {
+    "title": "PyTorch 2.14 · 常见graph break",
+    "url": "https://docs.pytorch.org/docs/2.14/user_guide/torch_compiler/compile/programming_model.common_graph_breaks.html"
+  },
+  "triton-softmax": {
+    "title": "Triton · Fused Softmax官方教程",
+    "url": "https://triton-lang.org/main/getting-started/tutorials/02-fused-softmax.html"
+  },
+  "torchair-repo": {
+    "title": "Ascend · TorchAir官方仓库与NPU后端入口",
+    "url": "https://github.com/Ascend/torchair"
+  },
+  "torchair-gears": {
+    "title": "TorchAir · 动态分档策略（master）",
+    "url": "https://github.com/Ascend/torchair/blob/master/docs/zh/ascend_ir/features/advanced/dynamic_gears_merge_policy.md"
+  },
+  "cuda-graphs-guide": {
+    "title": "NVIDIA · CUDA Graphs任务图、捕获与运行",
+    "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cuda-graphs.html"
+  },
+  "pytorch-cuda-graphs": {
+    "title": "PyTorch 2.14 · CUDA Graphs与使用约束",
+    "url": "https://docs.pytorch.org/docs/2.14/notes/cuda.html#cuda-graphs"
+  },
+  "ascend-capture": {
+    "title": "CANN Community 9.1.0 · aclmdlRICaptureBegin",
+    "url": "https://www.hiascend.com/doc_center/source/zh/CANNCommunityEdition/910/API/runtimeapi/aclcppdevg_03_1782.html"
+  },
+  "megatron-paper": {
+    "title": "Megatron-LM · Tensor Model Parallelism 原始论文",
+    "url": "https://arxiv.org/abs/1909.08053"
+  },
+  "tp-tutorial": {
+    "title": "PyTorch · Transformer Tensor Parallel 教程",
+    "url": "https://docs.pytorch.org/tutorials/intermediate/TP_tutorial.html"
+  },
+  "gpipe-paper": {
+    "title": "GPipe · 原始论文",
+    "url": "https://arxiv.org/abs/1811.06965"
+  },
+  "pytorch-pipeline": {
+    "title": "PyTorch 2.14 · Pipeline Parallelism 与调度接口",
+    "url": "https://docs.pytorch.org/docs/2.14/distributed.pipelining.html"
+  },
+  "pipedream-paper": {
+    "title": "PipeDream · 原始论文（更新语义需与同步式排程区分）",
+    "url": "https://arxiv.org/abs/1806.03377"
+  },
+  "zero-bubble-paper": {
+    "title": "Zero Bubble Pipeline Parallelism · 原始论文",
+    "url": "https://arxiv.org/abs/2401.10241"
+  },
+  "dualpipe": {
+    "title": "DeepSeek · DualPipe 原作者实现与排程说明",
+    "url": "https://github.com/deepseek-ai/DualPipe"
+  },
+  "quant-integer": {
+    "title": "Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference · 原始论文",
+    "url": "https://arxiv.org/abs/1712.05877"
+  },
+  "ao-inference": {
+    "title": "torchao · Quantized Inference（stable）",
+    "url": "https://docs.pytorch.org/ao/stable/workflows/inference.html"
+  },
+  "ao-qat": {
+    "title": "torchao · Quantization-Aware Training（stable）",
+    "url": "https://docs.pytorch.org/ao/stable/workflows/qat.html"
+  },
+  "gptq": {
+    "title": "GPTQ · 原始论文",
+    "url": "https://arxiv.org/abs/2210.17323"
+  },
+  "awq": {
+    "title": "AWQ · 原始论文",
+    "url": "https://arxiv.org/abs/2306.00978"
+  },
+  "smoothquant": {
+    "title": "SmoothQuant · 原始论文",
+    "url": "https://arxiv.org/abs/2211.10438"
+  },
+  "trt-precision": {
+    "title": "TensorRT-LLM · Numerical Precision",
+    "url": "https://nvidia.github.io/TensorRT-LLM/reference/precision.html"
+  },
+  "vllm-kv-quant": {
+    "title": "vLLM · Quantized KV Cache（latest）",
+    "url": "https://docs.vllm.ai/en/latest/features/quantization/quantized_kvcache/"
+  },
+  "kivi": {
+    "title": "KIVI · A Tuning-Free Asymmetric 2bit Quantization for KV Cache",
+    "url": "https://arxiv.org/abs/2402.02750"
+  },
+  "ascend-quantization": {
+    "title": "vLLM Ascend · Quantization Guide（main）",
+    "url": "https://docs.vllm.ai/projects/ascend/en/main/user_guide/feature_guide/quantization.html"
+  },
+  "ascend-kv-quant": {
+    "title": "ModelSlim 26.0.0 · KVCache INT8 量化算法说明",
+    "url": "https://gitcode.com/Ascend/msit/blob/26.0.0/msmodelslim/docs/%E7%AE%97%E6%B3%95%E8%AF%B4%E6%98%8E/KVCache_quant.md"
+  },
+  "vllm-prefix": {
+    "title": "vLLM · Automatic Prefix Caching 使用与边界",
+    "url": "https://docs.vllm.ai/en/latest/features/automatic_prefix_caching/"
+  },
+  "vllm-prefix-design": {
+    "title": "vLLM · 前缀缓存哈希、块引用与生命周期设计",
+    "url": "https://docs.vllm.ai/en/latest/design/prefix_caching/"
+  },
+  "dynamo-routing": {
+    "title": "NVIDIA Dynamo · KV-Aware Routing",
+    "url": "https://docs.nvidia.com/dynamo/knowledge-base/concepts/system-architecture/kv-aware-routing"
+  },
+  "sarathi-serve": {
+    "title": "Sarathi-Serve · Taming Throughput-Latency Tradeoff in LLM Inference",
+    "url": "https://arxiv.org/abs/2403.02310"
+  },
+  "speculative-paper": {
+    "title": "Fast Inference from Transformers via Speculative Decoding · ICML 原始论文",
+    "url": "https://proceedings.mlr.press/v202/leviathan23a/leviathan23a.pdf"
+  },
+  "speculative-sampling": {
+    "title": "Accelerating Large Language Model Decoding with Speculative Sampling · 原始论文",
+    "url": "https://arxiv.org/html/2302.01318v1"
+  },
+  "vllm-speculative": {
+    "title": "vLLM v0.22.0 · 投机解码方法与实现入口",
+    "url": "https://docs.vllm.ai/en/v0.22.0/features/speculative_decoding/"
+  },
+  "ascend-feature-matrix": {
+    "title": "vLLM Ascend · 支持功能矩阵（main）",
+    "url": "https://docs.vllm.ai/projects/ascend/en/main/user_guide/support_matrix/supported_features.html"
+  },
+  "ascend-speculative": {
+    "title": "vLLM Ascend v0.26.0rc1 · 投机解码指南",
+    "url": "https://docs.vllm.ai/projects/ascend/en/v0.26.0rc1/user_guide/feature_guide/speculative_decoding.html"
+  },
+  "modelopt": {
+    "title": "NVIDIA Model Optimizer",
+    "url": "https://github.com/NVIDIA/Model-Optimizer"
+  },
+  "attention": {
+    "title": "TensorRT-LLM · Attention",
+    "url": "https://nvidia.github.io/TensorRT-LLM/features/attention.html"
+  },
+  "sparse": {
+    "title": "TensorRT-LLM · Sparse Attention",
+    "url": "https://nvidia.github.io/TensorRT-LLM/blogs/tech_blog/blog17_Sparse_Attention_in_TensorRT-LLM.html"
+  },
+  "flash": {
+    "title": "FlashAttention 原始论文",
+    "url": "https://arxiv.org/abs/2205.14135"
+  },
+  "paged": {
+    "title": "PagedAttention 原始论文",
+    "url": "https://arxiv.org/abs/2309.06180"
+  },
+  "cache": {
+    "title": "TensorRT-LLM · KV Cache System",
+    "url": "https://nvidia.github.io/TensorRT-LLM/features/kvcache.html"
+  },
+  "compile": {
+    "title": "PyTorch · torch.compile",
+    "url": "https://docs.pytorch.org/docs/stable/generated/torch.compile"
+  },
+  "tuning": {
+    "title": "PyTorch · Performance Tuning Guide",
+    "url": "https://docs.pytorch.org/tutorials/recipes/recipes/tuning_guide"
+  },
+  "trt": {
+    "title": "TensorRT-LLM 官方仓库",
+    "url": "https://github.com/NVIDIA/TensorRT-LLM"
+  },
+  "overlap": {
+    "title": "TensorRT-LLM · Overlap Scheduler",
+    "url": "https://nvidia.github.io/TensorRT-LLM/features/overlap-scheduler.html"
+  },
+  "ep": {
+    "title": "vLLM · Expert Parallel Deployment",
+    "url": "https://docs.vllm.ai/en/latest/serving/expert_parallel_deployment/"
+  },
+  "lora": {
+    "title": "TensorRT-LLM · LoRA Serving",
+    "url": "https://nvidia.github.io/TensorRT-LLM/features/lora.html"
+  },
+  "peft": {
+    "title": "Hugging Face PEFT · Quantization",
+    "url": "https://huggingface.co/docs/peft/developer_guides/quantization"
+  },
+  "zero": {
+    "title": "DeepSpeed · ZeRO",
+    "url": "https://www.deepspeed.ai/tutorials/zero/"
+  },
+  "moe": {
+    "title": "Megatron Core · MoE",
+    "url": "https://docs.nvidia.com/megatron-core/developer-guide/0.15.0/user-guide/features/moe.html"
+  },
+  "parallel": {
+    "title": "Megatron Core · Parallelism Guide",
+    "url": "https://docs.nvidia.com/megatron-core/developer-guide/latest/user-guide/parallelism-guide.html"
+  },
+  "ms": {
+    "title": "MindSpeed Core · 特性清单",
+    "url": "https://github.com/Ascend/MindSpeed/blob/master/docs/zh/features/feature_list.md"
+  },
+  "nccl": {
+    "title": "NCCL · 算法、协议与环境配置",
+    "url": "https://docs.nvidia.com/deeplearning/nccl/archives/nccl_2303/user-guide/docs/env.html"
+  },
+  "mc2": {
+    "title": "昇腾 · MC² 通算融合最佳实践",
+    "url": "https://www.hiascend.com/developer/techArticles/20250325-1"
+  },
+  "cublasmp": {
+    "title": "NVIDIA · cuBLASMp Tensor Parallelism",
+    "url": "https://docs.nvidia.com/cuda/cublasmp/usage/tp.html"
+  },
+  "comm": {
+    "title": "NeMo · Communication Overlap",
+    "url": "https://docs.nvidia.com/nemo-framework/user-guide/25.09/nemotoolkit/features/optimizations/communication_overlap.html"
+  },
+  "dynamo": {
+    "title": "Dynamo · Disaggregated Serving",
+    "url": "https://docs.nvidia.com/dynamo/dev/knowledge-base/concepts/system-architecture/disaggregated-serving"
+  },
+  "hf-cache": {
+    "title": "Transformers · How Caching Works",
+    "url": "https://huggingface.co/docs/transformers/cache_explanation"
+  },
+  "rl": {
+    "title": "NeMo RL · Quantization-Aware RL",
+    "url": "https://docs.nvidia.com/nemo/rl/latest/guides/quantization-aware-rl.html"
+  },
+  "sdpa": {
+    "title": "PyTorch · SDPA 后端与约束（main）",
+    "url": "https://docs.pytorch.org/docs/main/generated/torch.nn.functional.scaled_dot_product_attention.html"
+  },
+  "flash-repo": {
+    "title": "FlashAttention · 原作者实现",
+    "url": "https://github.com/Dao-AILab/flash-attention"
+  },
+  "vllm-paged": {
+    "title": "vLLM · Paged Attention 内核设计",
+    "url": "https://docs.vllm.ai/en/latest/design/paged_attention/"
+  },
+  "vllm-opt": {
+    "title": "vLLM · 调度优化与预算",
+    "url": "https://docs.vllm.ai/en/latest/configuration/optimization/"
+  },
+  "orca": {
+    "title": "Orca · 迭代级调度原始论文 / 演讲",
+    "url": "https://www.usenix.org/conference/osdi22/presentation/yu"
+  },
+  "amp": {
+    "title": "PyTorch · torch.amp（main）",
+    "url": "https://docs.pytorch.org/docs/main/amp.html"
+  },
+  "amp-examples": {
+    "title": "PyTorch · AMP 示例（main）",
+    "url": "https://docs.pytorch.org/docs/main/notes/amp_examples.html"
+  },
+  "mixed-paper": {
+    "title": "Mixed Precision Training · 原始论文",
+    "url": "https://arxiv.org/abs/1710.03740"
+  },
+  "te-fp8": {
+    "title": "Transformer Engine 2.8 · FP8 / FP4 配方",
+    "url": "https://docs.nvidia.com/deeplearning/transformer-engine-releases/release-2.8/user-guide/examples/fp8_primer.html"
+  },
+  "zero-paper": {
+    "title": "ZeRO · 原始论文",
+    "url": "https://arxiv.org/abs/1910.02054"
+  },
+  "fsdp": {
+    "title": "PyTorch · FSDP2 fully_shard（main）",
+    "url": "https://docs.pytorch.org/docs/main/distributed.fsdp.fully_shard.html"
+  },
+  "fsdp-tutorial": {
+    "title": "PyTorch · FSDP2 教程",
+    "url": "https://docs.pytorch.org/tutorials/intermediate/FSDP_tutorial.html"
+  },
+  "checkpoint": {
+    "title": "PyTorch · 激活 Checkpoint（main）",
+    "url": "https://docs.pytorch.org/docs/main/checkpoint.html"
+  },
+  "checkpoint-paper": {
+    "title": "Training Deep Nets with Sublinear Memory Cost",
+    "url": "https://arxiv.org/abs/1604.06174"
+  },
+  "selective-checkpoint": {
+    "title": "PyTorch · 选择性激活重计算",
+    "url": "https://pytorch.org/blog/activation-checkpointing-techniques/"
+  },
+  "ddp-notes": {
+    "title": "PyTorch · DDP 执行机制（main）",
+    "url": "https://docs.pytorch.org/docs/main/notes/ddp.html"
+  },
+  "ddp-api": {
+    "title": "PyTorch · DDP 分桶接口",
+    "url": "https://docs.pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html"
+  },
+  "transformer": {
+    "title": "Attention Is All You Need · 原始论文",
+    "url": "https://arxiv.org/abs/1706.03762"
+  },
+  "flash2": {
+    "title": "FlashAttention-2 · 原始论文",
+    "url": "https://arxiv.org/abs/2307.08691"
+  },
+  "flash3": {
+    "title": "FlashAttention-3 · 原始论文",
+    "url": "https://arxiv.org/abs/2407.08608"
+  },
+  "flash3-blog": {
+    "title": "Tri Dao · FlashAttention-3 作者讲解",
+    "url": "https://tridao.me/blog/2024/flash3/"
+  },
+  "mqa-paper": {
+    "title": "Fast Transformer Decoding · MQA原始论文",
+    "url": "https://arxiv.org/abs/1911.02150"
+  },
+  "gqa-paper": {
+    "title": "GQA · 原始论文与检查点转换训练",
+    "url": "https://aclanthology.org/2023.emnlp-main.298/"
+  },
+  "deepseek-v2-paper": {
+    "title": "DeepSeek-V2 · MLA结构、矩阵吸收与解耦RoPE",
+    "url": "https://arxiv.org/html/2405.04434v5"
+  },
+  "mistral-paper": {
+    "title": "Mistral 7B · 原始滑窗Attention架构",
+    "url": "https://arxiv.org/html/2310.06825v1"
+  },
+  "semi-sparse": {
+    "title": "PyTorch · 2:4半结构稀疏、剪枝与推理",
+    "url": "https://docs.pytorch.org/tutorials/advanced/semi_structured_sparse.html"
+  },
+  "flexattention-blog": {
+    "title": "PyTorch · FlexAttention与BlockMask作者讲解（2024）",
+    "url": "https://pytorch.org/blog/flexattention/"
+  },
+  "cce-paper": {
+    "title": "Cut Your Losses in Large-Vocabulary Language Models · 原始论文",
+    "url": "https://arxiv.org/abs/2411.09009"
+  },
+  "cce-repo": {
+    "title": "Apple · Cut Cross-Entropy原作者实现与数值路径（main）",
+    "url": "https://github.com/apple-aiml-research/ml-cross-entropy"
+  },
+  "cross-entropy-api": {
+    "title": "PyTorch · CrossEntropyLoss语义与reduction（main）",
+    "url": "https://docs.pytorch.org/docs/main/generated/torch.nn.CrossEntropyLoss.html"
+  },
+  "lora-paper": {
+    "title": "LoRA · 低秩适配原始论文",
+    "url": "https://arxiv.org/abs/2106.09685"
+  },
+  "qlora-paper": {
+    "title": "QLoRA · 量化基座微调原始论文",
+    "url": "https://arxiv.org/abs/2305.14314"
+  },
+  "slora-paper": {
+    "title": "S-LoRA · 多适配器分页与异构批处理原始论文",
+    "url": "https://arxiv.org/abs/2311.03285"
+  },
+  "peft-lora-reference": {
+    "title": "Hugging Face PEFT 0.21.0 · LoRA参数、变体与合并",
+    "url": "https://huggingface.co/docs/peft/v0.21.0/package_reference/lora"
+  },
+  "peft-quantization": {
+    "title": "Hugging Face PEFT · 量化基座微调",
+    "url": "https://huggingface.co/docs/peft/developer_guides/quantization"
+  },
+  "vllm-lora": {
+    "title": "vLLM · 混合LoRA请求及服务配置（latest）",
+    "url": "https://docs.vllm.ai/en/latest/features/lora/"
+  },
+  "flashinfer-sampling": {
+    "title": "FlashInfer 0.7.1 · 设备采样算子",
+    "url": "https://docs.flashinfer.ai/api/sampling.html"
+  },
+  "flashinfer-sampling-blog": {
+    "title": "FlashInfer · 无完整排序采样作者讲解",
+    "url": "https://flashinfer.ai/2025/03/10/sampling.html"
+  },
+  "flashinfer-filter-order": {
+    "title": "FlashInfer 0.7.1 · top-k/top-p顺序与随机状态",
+    "url": "https://docs.flashinfer.ai/generated/flashinfer.sampling.top_k_top_p_sampling_from_logits.html"
+  },
+  "xgrammar-repo": {
+    "title": "XGrammar · 原作者结构化生成实现",
+    "url": "https://github.com/mlc-ai/xgrammar"
+  },
+  "adamw-api": {
+    "title": "PyTorch · AdamW定义与执行选项",
+    "url": "https://docs.pytorch.org/docs/main/generated/torch.optim.AdamW.html"
+  },
+  "optim-execution": {
+    "title": "PyTorch · 优化器for-loop / foreach / fused执行",
+    "url": "https://docs.pytorch.org/docs/main/optim.html"
+  },
+  "optim-bf16": {
+    "title": "PyTorch main · 特定融合路径的BF16优化器状态",
+    "url": "https://docs.pytorch.org/docs/main/optim.html"
+  },
+  "bnb-optimizers": {
+    "title": "bitsandbytes · 8bit优化器与选择性精度",
+    "url": "https://huggingface.co/docs/bitsandbytes/optimizers"
+  },
+  "dcp-async": {
+    "title": "PyTorch · 异步分布式检查点教程",
+    "url": "https://docs.pytorch.org/tutorials/recipes/distributed_async_checkpoint_recipe.html"
+  },
+  "dcp-api": {
+    "title": "PyTorch · Distributed Checkpoint接口与兼容范围",
+    "url": "https://docs.pytorch.org/docs/main/distributed.checkpoint.html"
+  },
+  "module-load-tips": {
+    "title": "PyTorch · mmap / meta / assign模型加载教程",
+    "url": "https://docs.pytorch.org/tutorials/recipes/recipes/module_load_state_dict_tips.html"
+  },
+  "compile-cache-recipe": {
+    "title": "PyTorch · 编译缓存与兼容检查教程",
+    "url": "https://docs.pytorch.org/tutorials/recipes/torch_compile_caching_tutorial.html"
+  },
+  "pruning-modelopt": {
+    "title": "NVIDIA Model Optimizer · LLM结构剪枝与蒸馏示例",
+    "url": "https://github.com/NVIDIA/Model-Optimizer/blob/main/examples/pruning/README.md"
+  },
+  "pytorch-pruning": {
+    "title": "PyTorch · mask、剪枝重参数化与移除教程",
+    "url": "https://docs.pytorch.org/tutorials/intermediate/pruning_tutorial.html"
+  },
+  "distillation-original": {
+    "title": "Hinton等 · Distilling the Knowledge in a Neural Network",
+    "url": "https://arxiv.org/abs/1503.02531"
+  },
+  "routellm-original": {
+    "title": "RouteLLM · 强弱模型学习路由原始论文",
+    "url": "https://arxiv.org/abs/2406.18665"
+  },
+  "llmlingua-original": {
+    "title": "LLMLingua · 提示压缩原始论文",
+    "url": "https://arxiv.org/abs/2310.05736"
+  },
+  "generation-config": {
+    "title": "Transformers · 生成长度、终止与配置合同",
+    "url": "https://huggingface.co/docs/transformers/main_classes/text_generation"
+  },
+  "redis-semantic": {
+    "title": "Redis · 语义结果缓存、硬过滤与TTL",
+    "url": "https://redis.io/docs/latest/develop/use-cases/semantic-cache/"
+  },
+  "apim-semantic": {
+    "title": "Microsoft API Management · LLM语义缓存匹配与分区",
+    "url": "https://learn.microsoft.com/en-us/azure/api-management/llm-semantic-cache-lookup-policy"
+  },
+  "apisix-ai-cache": {
+    "title": "Apache APISIX · 精确/语义结果缓存与完整stream",
+    "url": "https://apisix.apache.org/cookbooks/redis-ai-cache/"
+  },
+  "vllm-scheduler": {
+    "title": "vLLM · Scheduler预算与调度策略配置",
+    "url": "https://docs.vllm.ai/en/latest/api/vllm/config/scheduler/"
+  },
+  "vllm-tuning-current": {
+    "title": "vLLM · KV不足、抢占和分块Prefill",
+    "url": "https://docs.vllm.ai/en/stable/configuration/optimization/"
+  },
+  "dynamo-router-current": {
+    "title": "NVIDIA Dynamo · KV与负载感知副本路由",
+    "url": "https://docs.dynamo.nvidia.com/dynamo/knowledge-base/modular-components/router/overview"
+  },
+  "dynamo-planner-current": {
+    "title": "NVIDIA Dynamo · Planner负载与服务目标",
+    "url": "https://docs.dynamo.nvidia.com/dynamo/knowledge-base/modular-components/planner/overview"
+  },
+  "large-batch-original": {
+    "title": "An Empirical Model of Large-Batch Training · 原始论文",
+    "url": "https://arxiv.org/abs/1812.06162"
+  },
+  "compute-optimal-original": {
+    "title": "Chinchilla · Training Compute-Optimal Large Language Models",
+    "url": "https://arxiv.org/abs/2203.15556"
+  },
+  "dedup-original": {
+    "title": "Deduplicating Training Data Makes Language Models Better",
+    "url": "https://arxiv.org/abs/2107.06499"
+  },
+  "doremi-original": {
+    "title": "DoReMi · Optimizing Data Mixtures Speeds Up Language Model Pretraining",
+    "url": "https://arxiv.org/abs/2305.10429"
+  },
+  "ppo-original": {
+    "title": "Proximal Policy Optimization Algorithms · 原始论文",
+    "url": "https://arxiv.org/abs/1707.06347"
+  },
+  "verl-engine-current": {
+    "title": "verl · 训练、rollout与reference角色及参数更新接口",
+    "url": "https://verl.readthedocs.io/en/latest/workers/engine_workers.html"
+  },
+  "verl-async-current": {
+    "title": "verl · V1异步训练、部分rollout与版本滞后",
+    "url": "https://verl.readthedocs.io/en/latest/advance/v1_async_trainer.html"
+  }
+}

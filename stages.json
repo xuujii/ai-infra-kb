@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "updated": "2026-10-10",
+  "dimensions": {
+    "algorithm": "模型与算法",
+    "kernel": "算子与编译",
+    "memory": "内存与数据搬运",
+    "schedule": "调度与并行",
+    "communication": "通信与互联"
+  },
+  "stages": [
+    {
+      "id": "I-P0",
+      "phase": "inference",
+      "lane": "prepare",
+      "title": "模型准备与部署选择",
+      "text": "确定使用哪个模型、结构与精度，完成必要的压缩、转换和质量验证。此阶段不会随每个请求重复。"
+    },
+    {
+      "id": "I-B0",
+      "phase": "inference",
+      "lane": "prepare",
+      "title": "服务初始化与预热",
+      "text": "加载权重、分配工作区、建立通信组、编译和预热执行路径。权重通常常驻设备内存。"
+    },
+    {
+      "id": "I-A1",
+      "phase": "inference",
+      "lane": "model",
+      "title": "Embedding：ID → 向量",
+      "text": "按 token ID 查找嵌入向量。Tokenizer 在神经网络之前完成分词；Embedding 是网络输入层，本身是正常步骤。",
+      "formula": "token ID → embedding lookup → hidden states"
+    },
+    {
+      "id": "I-A2",
+      "phase": "inference",
+      "lane": "model",
+      "title": "Transformer 各层计算",
+      "text": "依次执行 L 层。Prefill 处理提示词并建立各层 KV；Decode 使用已有 KV，并为当前输入位置追加 KV。",
+      "formula": "归一化 → Q/K/V 投影与位置处理 → Attention → 输出投影与残差 → 归一化 → MLP / MoE → 残差",
+      "featured": [
+        "M014",
+        "M007",
+        "M006",
+        "M009"
+      ]
+    },
+    {
+      "id": "I-A3",
+      "phase": "inference",
+      "lane": "model",
+      "title": "输出投影得到 logits",
+      "text": "将相应位置的隐藏状态投影到词表，得到候选 token 的分数。常规生成一般无需保存全部输入位置的 logits。"
+    },
+    {
+      "id": "I-A4",
+      "phase": "inference",
+      "lane": "model",
+      "title": "选择 token 与判断结束",
+      "text": "使用贪心、采样或约束生成，检查停止条件。这里属于生成逻辑，不是 Transformer 内部的一层。",
+      "formula": "未结束 → 新 token 回到 I-A1；结束 → 系统完成返回与回收"
+    },
+    {
+      "id": "I-B1",
+      "phase": "inference",
+      "lane": "system",
+      "title": "请求准备与 Tokenizer",
+      "text": "组织提示词、历史和可选检索结果，编码为模型词表中的 token ID。分词是预处理步骤。"
+    },
+    {
+      "id": "I-B2",
+      "phase": "inference",
+      "lane": "system",
+      "title": "路由、排队与缓存查找",
+      "text": "选择服务实例，检查负载、可复用的前缀或适配器。缓存命中与排队会影响首 token 时间。"
+    },
+    {
+      "id": "I-B3",
+      "phase": "inference",
+      "lane": "system",
+      "title": "安排本轮请求与 token",
+      "text": "在新请求、Prefill 和 Decode 之间分配计算预算，组成实际执行的批次。"
+    },
+    {
+      "id": "I-B4",
+      "phase": "inference",
+      "lane": "system",
+      "title": "准备输入与管理 KV",
+      "text": "分配、复用和迁移缓存，准备位置、掩码和本轮输入。卸载和回迁可能增加等待。",
+      "featured": [
+        "M014",
+        "M016",
+        "M015",
+        "M017"
+      ]
+    },
+    {
+      "id": "I-B5",
+      "phase": "inference",
+      "lane": "system",
+      "title": "执行计算与必要的通信",
+      "text": "调用 I-A1～I-A4。多卡部署时，层内或层间按并行方式交换数据；单卡执行无需这些跨卡操作。",
+      "formula": "计算 ↔ 通信：可穿插、分块、重叠，须满足依赖",
+      "featured": [
+        "M024",
+        "M025",
+        "M026",
+        "M027"
+      ]
+    },
+    {
+      "id": "I-B6",
+      "phase": "inference",
+      "lane": "system",
+      "title": "返回文本、更新与回收",
+      "text": "把输出 ID 解码为文本；更新结束或取消状态，释放或保留 KV。继续生成的请求回到 I-B3。"
+    },
+    {
+      "id": "T-P0",
+      "phase": "training",
+      "lane": "prepare",
+      "title": "确定训练目标与策略",
+      "text": "确定预训练或微调目标、可训练参数、精度和质量基线。LoRA / QLoRA 是微调选择，不等同于全参数训练。"
+    },
+    {
+      "id": "T-B0",
+      "phase": "training",
+      "lane": "prepare",
+      "title": "初始化分布式训练",
+      "text": "加载权重与训练状态，选择模型切分、通信组和内存布局。恢复训练时还需恢复优化器等状态。"
+    },
+    {
+      "id": "T-A1",
+      "phase": "training",
+      "lane": "model",
+      "title": "前向计算",
+      "text": "多个位置的输入已知，可按因果掩码组织并行计算；保存反向所需结果，或按策略以后重算。",
+      "formula": "token ID → Embedding → Transformer 各层 → logits",
+      "featured": [
+        "M035",
+        "M006",
+        "M007",
+        "M009"
+      ]
+    },
+    {
+      "id": "T-A2",
+      "phase": "training",
+      "lane": "model",
+      "title": "计算 Loss",
+      "text": "比较预测与真实标签，按有效位置汇总损失。SFT 可只对需要学习的回答位置计入损失。"
+    },
+    {
+      "id": "T-A3",
+      "phase": "training",
+      "lane": "model",
+      "title": "反向传播得到梯度",
+      "text": "从输出向前传播，计算可训练参数的梯度。冻结参数不代表该位置完全不参与反向数据流。",
+      "formula": "Y = XW；dX = dY·Wᵀ；dW = Xᵀ·dY（需要时计算）"
+    },
+    {
+      "id": "T-A4",
+      "phase": "training",
+      "lane": "model",
+      "title": "优化器更新参数",
+      "text": "依据梯度、学习率与优化器状态更新可训练参数，并按配置执行裁剪、缩放等处理。"
+    },
+    {
+      "id": "T-B1",
+      "phase": "training",
+      "lane": "system",
+      "title": "读取、处理与预取数据",
+      "text": "持续提供训练样本、token、标签与掩码。数据选择影响训练目标，读取速度影响设备等待。"
+    },
+    {
+      "id": "T-B2",
+      "phase": "training",
+      "lane": "system",
+      "title": "组成批次与搬入设备",
+      "text": "组成 microbatch，准备边界、位置与掩码，搬运输入到设备。"
+    },
+    {
+      "id": "T-B3",
+      "phase": "training",
+      "lane": "system",
+      "title": "调度前向与 Loss",
+      "text": "执行 T-A1、T-A2；依据切分策略汇集参数、交换激活或分发专家 token。",
+      "featured": [
+        "M024",
+        "M036",
+        "M040",
+        "M026"
+      ]
+    },
+    {
+      "id": "T-B4",
+      "phase": "training",
+      "lane": "system",
+      "title": "管理激活与调度反向",
+      "text": "执行 T-A3；安排保存、重算与回迁。先就绪的梯度可与后续反向计算重叠通信。",
+      "featured": [
+        "M037",
+        "M026",
+        "M038",
+        "M040"
+      ]
+    },
+    {
+      "id": "T-B5",
+      "phase": "training",
+      "lane": "system",
+      "title": "梯度累积、归约与分片",
+      "text": "完成更新所需的梯度处理；普通 DP 可归约梯度，分片训练可归约并保留对应分片。"
+    },
+    {
+      "id": "T-B6",
+      "phase": "training",
+      "lane": "system",
+      "title": "调度参数更新与预取",
+      "text": "执行 T-A4，协调分片状态、卸载与下次计算所需参数的可用性。"
+    },
+    {
+      "id": "T-B7",
+      "phase": "training",
+      "lane": "system",
+      "title": "评估、保存与恢复",
+      "text": "周期性评估质量与保存状态。继续下一批时回到 T-B1；异常恢复影响长期有效训练时间。"
+    },
+    {
+      "id": "X-RL",
+      "phase": "training",
+      "lane": "extension",
+      "title": "扩展边界：强化学习后训练",
+      "text": "还需“生成rollout → 反馈/奖励 → 策略更新”的外层循环。独立详解展开角色、资源与权重同步，此处保留扩展入口。"
+    }
+  ]
+}

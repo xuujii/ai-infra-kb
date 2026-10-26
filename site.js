@@ -1,0 +1,25 @@
+(()=>{
+ const directory=document.getElementById('directory'),toggle=document.getElementById('menu-toggle'),backdrop=document.getElementById('menu-backdrop');
+ function menu(open){directory.classList.toggle('open',open);toggle.setAttribute('aria-expanded',String(open));backdrop.hidden=!open;document.body.classList.toggle('menu-lock',open);if(open)document.getElementById('sidebar-search').focus();}
+ toggle.addEventListener('click',()=>menu(!directory.classList.contains('open')));backdrop.addEventListener('click',()=>menu(false));
+ const normalize=s=>s.normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
+ const navSearch=document.getElementById('sidebar-search');
+ const groups=[...document.querySelectorAll('.nav-group')];let groupState;
+ navSearch.addEventListener('input',()=>{const q=normalize(navSearch.value);if(q&&!groupState)groupState=groups.map(g=>g.open);let found=0;document.querySelectorAll('.side-method').forEach(a=>{a.hidden=!normalize(a.textContent).includes(q);if(!a.hidden)found++;});groups.forEach((g,i)=>{g.hidden=![...g.querySelectorAll('.side-method')].some(a=>!a.hidden);if(q)g.open=true;else if(groupState)g.open=groupState[i];});if(!q)groupState=null;document.getElementById('side-empty').hidden=found>0;});
+ window.addEventListener('resize',()=>{if(innerWidth>760)menu(false)});
+ const dialog=document.getElementById('search-dialog'),input=document.getElementById('global-search'),results=document.getElementById('search-results'),status=document.getElementById('search-status');
+ const data=JSON.parse(document.getElementById('search-data').textContent).map(x=>({...x,haystack:normalize(x.id+' '+x.title+' '+x.summary+' '+x.text)}));
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ function search(){const words=normalize(input.value).split(' ').filter(Boolean);let matched=data.filter(x=>words.length?words.every(w=>x.haystack.includes(w)):x.type==='方法详解');matched.sort((a,b)=>{const score=x=>words.filter(w=>normalize(x.id+' '+x.title).includes(w)).length*10+(x.type==='方法详解'?1:0);return score(b)-score(a)});status.textContent=words.length?`${matched.length} 个匹配结果${matched.length>15?'，先显示前 15 项':''}`:'推荐：已完成的方法详解';results.innerHTML=matched.slice(0,15).map(x=>`<a href="${window.KB_PREFIX}${esc(x.url)}"><div><strong>${esc(x.title)}</strong><small>${esc(x.id)} · ${esc(x.type)}</small></div><p>${esc(x.summary)}</p></a>`).join('')||'<p class="empty-search">没有找到匹配内容，试试方法名称或更短的关键词。</p>';}
+ document.getElementById('open-search').addEventListener('click',()=>{menu(false);dialog.showModal();search();input.focus()});document.getElementById('close-search').addEventListener('click',()=>dialog.close());
+ input.addEventListener('input',search);input.addEventListener('keydown',e=>{if(e.key==='Enter'){const first=results.querySelector('a');if(first){e.preventDefault();first.click()}}if(e.key==='ArrowDown'){e.preventDefault();results.querySelector('a')?.focus()}});
+ results.addEventListener('keydown',e=>{const links=[...results.querySelectorAll('a')],i=links.indexOf(document.activeElement);if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();links[Math.max(0,Math.min(links.length-1,i+(e.key==='ArrowDown'?1:-1)))]?.focus()}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'){menu(false);if(dialog.open){e.preventDefault();dialog.close()}}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if(!dialog.open)document.getElementById('open-search').click();else input.focus()}if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!dialog.open){e.preventDefault();document.getElementById('open-search').click()}});
+ dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close()}});
+ document.querySelectorAll('[data-site-print]').forEach(b=>b.onclick=()=>window.print());
+ const video=document.getElementById('method-video'),chapterButtons=[...document.querySelectorAll('[data-video-time]')];
+ if(video){chapterButtons.forEach(b=>b.addEventListener('click',()=>{video.currentTime=Number(b.dataset.videoTime);video.play().catch(()=>{})}));video.addEventListener('timeupdate',()=>{let i=-1;chapterButtons.forEach((b,j)=>{if(Number(b.dataset.videoTime)<=video.currentTime)i=j});chapterButtons.forEach((b,j)=>b.classList.toggle('active',i===j))})}
+ const tocLinks=[...document.querySelectorAll('.page-toc a[href^="#"]')];
+ const targets=tocLinks.map(a=>document.getElementById(decodeURIComponent(a.hash.slice(1)))).filter(Boolean);
+ if(targets.length&&'IntersectionObserver' in window){const observer=new IntersectionObserver(entries=>{const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>a.boundingClientRect.top-b.boundingClientRect.top)[0];if(visible)tocLinks.forEach(a=>a.classList.toggle('active',a.hash==='#'+visible.target.id))},{rootMargin:'-100px 0px -55% 0px'});targets.forEach(el=>observer.observe(el))}
+})();

@@ -1,0 +1,138 @@
+{
+  "M007": {
+    "title": "FlashAttention：为什么少搬数据，反而算得更快？",
+    "src": "videos/flashattention/flashattention.mp4",
+    "poster": "videos/flashattention/poster.png",
+    "subtitles": "videos/flashattention/flashattention.vtt",
+    "timeline": "videos/flashattention/timeline.json",
+    "duration": "3 分 11 秒",
+    "voice": "中文合成旁白",
+    "transcript": "videos/flashattention/讲解稿.md",
+    "chapters": [
+      {
+        "name": "大仓库与小工作台",
+        "start": 0
+      },
+      {
+        "name": "原始 Attention",
+        "start": 15.895578231292514
+      },
+      {
+        "name": "中间矩阵容量",
+        "start": 38.04784580498866
+      },
+      {
+        "name": "分块计算",
+        "start": 59.29263038548753
+      },
+      {
+        "name": "在线 Softmax",
+        "start": 80.55043083900227
+      },
+      {
+        "name": "反向重计算",
+        "start": 145.85142857142853
+      },
+      {
+        "name": "适用范围",
+        "start": 163.15011337868475
+      }
+    ]
+  },
+  "M016": {
+    "title": "PagedAttention：KV 不连续，为什么仍然能读对？",
+    "src": "videos/paged-kv/video.mp4",
+    "poster": "videos/paged-kv/poster.png",
+    "subtitles": "videos/paged-kv/subtitles.vtt",
+    "timeline": "videos/paged-kv/timeline.json",
+    "duration": "1 分 53 秒",
+    "voice": "中文合成旁白",
+    "transcript": "videos/paged-kv/讲解稿.md",
+    "chapters": [
+      {
+        "name": "KV 为什么增长",
+        "start": 0
+      },
+      {
+        "name": "最大长度预留",
+        "start": 17.706371882086167
+      },
+      {
+        "name": "分页与块表",
+        "start": 34.03031746031746
+      },
+      {
+        "name": "增长与回收",
+        "start": 67.87467120181407
+      },
+      {
+        "name": "收益与边界",
+        "start": 85.02401360544219
+      }
+    ]
+  },
+  "M021": {
+    "title": "连续批处理：谁先结束，就先腾出位置",
+    "src": "videos/continuous-batching/video.mp4",
+    "poster": "videos/continuous-batching/poster.png",
+    "subtitles": "videos/continuous-batching/subtitles.vtt",
+    "timeline": "videos/continuous-batching/timeline.json",
+    "duration": "1 分 52 秒",
+    "voice": "中文合成旁白",
+    "transcript": "videos/continuous-batching/讲解稿.md",
+    "chapters": [
+      {
+        "name": "变长请求",
+        "start": 0
+      },
+      {
+        "name": "固定批次的空等",
+        "start": 16.226190476190474
+      },
+      {
+        "name": "逐轮重排",
+        "start": 33.02215419501133
+      },
+      {
+        "name": "加入请求的条件",
+        "start": 58.47664399092971
+      },
+      {
+        "name": "吞吐与延迟",
+        "start": 85.45594104308391
+      }
+    ]
+  },
+  "M026": {
+    "title": "计算与通信重叠：把等待藏进独立计算里",
+    "src": "videos/compute-communication-overlap/video.mp4",
+    "poster": "videos/compute-communication-overlap/poster.png",
+    "subtitles": "videos/compute-communication-overlap/subtitles.vtt",
+    "timeline": "videos/compute-communication-overlap/timeline.json",
+    "duration": "1 分 51 秒",
+    "voice": "中文合成旁白",
+    "transcript": "videos/compute-communication-overlap/讲解稿.md",
+    "chapters": [
+      {
+        "name": "训练中的通信",
+        "start": 0
+      },
+      {
+        "name": "先算完再归约",
+        "start": 16.273356009070294
+      },
+      {
+        "name": "按桶就绪重叠",
+        "start": 32.94351473922902
+      },
+      {
+        "name": "长尾与依赖",
+        "start": 57.81210884353742
+      },
+      {
+        "name": "重叠和融合",
+        "start": 83.79852607709752
+      }
+    ]
+  }
+}
